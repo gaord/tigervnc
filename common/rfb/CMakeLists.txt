@@ -20,10 +20,6 @@ add_library(rfb STATIC
   Encoder.cxx
   HextileDecoder.cxx
   HextileEncoder.cxx
-  JpegCompressor.cxx
-  JpegDecompressor.cxx
-  JPEGDecoder.cxx
-  JPEGEncoder.cxx
   KeyRemapper.cxx
   KeysymStr.c
   PixelBuffer.cxx
@@ -44,9 +40,6 @@ add_library(rfb STATIC
   SSecurityStack.cxx
   SSecurityVncAuth.cxx
   SSecurityVeNCrypt.cxx
-  TightDecoder.cxx
-  TightEncoder.cxx
-  TightJPEGEncoder.cxx
   UpdateTracker.cxx
   VNCSConnectionST.cxx
   VNCServerST.cxx
@@ -55,10 +48,22 @@ add_library(rfb STATIC
   encodings.cxx
   obfuscate.cxx)
 
-target_include_directories(rfb PUBLIC ${CMAKE_SOURCE_DIR}/common)
-target_include_directories(rfb SYSTEM PUBLIC ${JPEG_INCLUDE_DIR})
+target_include_directories(rfb PUBLIC ${TIGERVNC_SOURCE_DIR}/common)
 target_link_libraries(rfb core rdr network)
-target_link_libraries(rfb ${JPEG_LIBRARIES} ${PIXMAN_LIBRARIES})
+
+if(NOT OHOS)
+  target_sources(rfb PRIVATE
+    JpegCompressor.cxx
+    JpegDecompressor.cxx
+    JPEGDecoder.cxx
+    JPEGEncoder.cxx
+    TightDecoder.cxx
+    TightEncoder.cxx
+    TightJPEGEncoder.cxx
+  )
+  target_include_directories(rfb SYSTEM PUBLIC ${JPEG_INCLUDE_DIR})
+  target_link_libraries(rfb ${JPEG_LIBRARIES} ${PIXMAN_LIBRARIES})
+endif()
 
 if(ENABLE_H264 AND NOT H264_LIBS STREQUAL "NONE")
   target_sources(rfb PRIVATE H264Decoder.cxx H264DecoderContext.cxx)
@@ -76,7 +81,7 @@ if(WIN32)
   target_sources(rfb PRIVATE WinPasswdValidator.cxx)
 endif(WIN32)
 
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT OHOS)
   target_sources(rfb PRIVATE UnixPasswordValidator.cxx)
   target_include_directories(rfb SYSTEM PRIVATE ${PAM_INCLUDE_DIRS})
   target_link_libraries(rfb ${PAM_LIBRARIES})

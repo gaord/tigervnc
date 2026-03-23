@@ -98,6 +98,10 @@ static const char *_XKeysymToString(unsigned ks)
     return ((char *) NULL);
 }
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 const char* KeySymName(unsigned keysym)
 {
     const char* name;
@@ -109,3 +113,6 @@ const char* KeySymName(unsigned keysym)
     return name;
 }
 
+#ifdef __cplusplus
+}
+#endif

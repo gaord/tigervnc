@@ -882,9 +882,7 @@ void CConnection::refreshFramebuffer()
 {
   forceNonincremental = true;
 
-  // Without continuous updates we have to make sure we only have a
-  // single update in flight, so we'll have to wait to do the refresh
-  if (continuousUpdates)
+  if (state_ == RFBSTATE_NORMAL && !pendingUpdate)
     requestNewUpdate();
 }
 
@@ -1019,7 +1017,8 @@ void CConnection::updateEncodings()
   encodings.push_back(pseudoEncodingDesktopName);
   encodings.push_back(pseudoEncodingLastRect);
   encodings.push_back(pseudoEncodingExtendedClipboard);
-  encodings.push_back(pseudoEncodingContinuousUpdates);
+  // macOS screen sharing may have bugs with continuous updates on reconnect
+  // encodings.push_back(pseudoEncodingContinuousUpdates);
   encodings.push_back(pseudoEncodingFence);
   encodings.push_back(pseudoEncodingQEMUKeyEvent);
   encodings.push_back(pseudoEncodingExtendedMouseButtons);

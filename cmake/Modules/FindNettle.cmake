@@ -61,3 +61,5 @@ if(Nettle_FOUND)
   set(NETTLE_LIBRARIES ${Nettle_LIBRARY})
   set(HOGWEED_LIBRARIES ${Hogweed_LIBRARY} ${GMP_LIBRARIES})
 endif()
+
+set(NETTLE_FOUND ${Nettle_FOUND})

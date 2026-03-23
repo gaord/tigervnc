@@ -40,10 +40,12 @@
 #include <rfb/RawEncoder.h>
 #include <rfb/RREEncoder.h>
 #include <rfb/HextileEncoder.h>
-#include <rfb/JPEGEncoder.h>
 #include <rfb/ZRLEEncoder.h>
+#ifndef OHOS
+#include <rfb/JPEGEncoder.h>
 #include <rfb/TightEncoder.h>
 #include <rfb/TightJPEGEncoder.h>
+#endif
 
 using namespace rfb;
 
@@ -150,10 +152,12 @@ EncodeManager::EncodeManager(SConnection* conn_)
   encoders[encoderRaw] = new RawEncoder(conn);
   encoders[encoderRRE] = new RREEncoder(conn);
   encoders[encoderHextile] = new HextileEncoder(conn);
+  encoders[encoderZRLE] = new ZRLEEncoder(conn);
+#ifndef OHOS
   encoders[encoderTight] = new TightEncoder(conn);
   encoders[encoderTightJPEG] = new TightJPEGEncoder(conn);
-  encoders[encoderZRLE] = new ZRLEEncoder(conn);
   encoders[encoderJPEG] = new JPEGEncoder(conn);
+#endif
 
   updates = 0;
   memset(&copyStats, 0, sizeof(copyStats));

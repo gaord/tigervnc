@@ -28,6 +28,10 @@
 
 #include "d3des.h"
 
+#ifdef __cplusplus
+extern "C" {
+#endif
+
 static void scrunch(unsigned char *, unsigned long *);
 static void unscrun(unsigned long *, unsigned char *);
 static void desfunc(unsigned long *, unsigned long *);
@@ -424,3 +428,7 @@ static void desfunc(register unsigned long *block,
  *
  * d3des V5.0a rwo 9208.07 18:44 Graven Imagery
  **********************************************************************/
+
+#ifdef __cplusplus
+}
+#endif

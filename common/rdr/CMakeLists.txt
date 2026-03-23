@@ -16,7 +16,7 @@ add_library(rdr STATIC
   ZlibInStream.cxx
   ZlibOutStream.cxx)
 
-target_include_directories(rdr PUBLIC ${CMAKE_SOURCE_DIR}/common)
+target_include_directories(rdr PUBLIC ${TIGERVNC_SOURCE_DIR}/common)
 target_include_directories(rdr SYSTEM PUBLIC ${ZLIB_INCLUDE_DIRS})
 target_link_libraries(rdr core)
 target_link_libraries(rdr ${ZLIB_LIBRARIES})

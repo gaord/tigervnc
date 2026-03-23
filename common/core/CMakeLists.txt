@@ -11,9 +11,13 @@ add_library(core STATIC
   time.cxx
   xdgdirs.cxx)
 
-target_include_directories(core PUBLIC ${CMAKE_SOURCE_DIR}/common)
-target_include_directories(core SYSTEM PUBLIC ${PIXMAN_INCLUDE_DIRS})
-target_link_libraries(core ${PIXMAN_LIBRARIES})
+target_include_directories(core PUBLIC ${TIGERVNC_SOURCE_DIR}/common)
+if(OHOS)
+  target_compile_definitions(core PUBLIC OHOS)
+else()
+  target_include_directories(core SYSTEM PUBLIC ${PIXMAN_INCLUDE_DIRS})
+  target_link_libraries(core ${PIXMAN_LIBRARIES})
+endif()
 
 if(UNIX)
   target_sources(core PRIVATE Logger_syslog.cxx)

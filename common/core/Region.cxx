@@ -24,14 +24,166 @@
 #include <core/LogWriter.h>
 #include <core/Region.h>
 
+#ifndef OHOS
 extern "C" {
 #include <pixman.h>
 }
+#endif
 
 using namespace core;
 
 static LogWriter vlog("Region");
 
+#ifdef OHOS
+Region::Region()
+  : hasRect(false), rect(0, 0, 0, 0)
+{
+}
+
+Region::Region(const Rect& r)
+  : hasRect(!r.is_empty()), rect(r)
+{
+  if (!hasRect)
+    rect = Rect(0, 0, 0, 0);
+}
+
+Region::Region(const Region& r)
+  : hasRect(r.hasRect), rect(r.rect)
+{
+}
+
+Region::~Region()
+{
+}
+
+Region& Region::operator=(const Region& r)
+{
+  hasRect = r.hasRect;
+  rect = r.rect;
+  return *this;
+}
+
+void Region::clear()
+{
+  hasRect = false;
+  rect = Rect(0, 0, 0, 0);
+}
+
+void Region::reset(const Rect& r)
+{
+  hasRect = !r.is_empty();
+  rect = hasRect ? r : Rect(0, 0, 0, 0);
+}
+
+void Region::translate(const Point& delta)
+{
+  if (!hasRect)
+    return;
+  rect = rect.translate(delta);
+}
+
+void Region::assign_intersect(const Region& r)
+{
+  if (!hasRect || !r.hasRect) {
+    clear();
+    return;
+  }
+  rect = rect.intersect(r.rect);
+  hasRect = !rect.is_empty();
+  if (!hasRect)
+    rect = Rect(0, 0, 0, 0);
+}
+
+void Region::assign_union(const Region& r)
+{
+  if (!r.hasRect)
+    return;
+  if (!hasRect) {
+    hasRect = true;
+    rect = r.rect;
+    return;
+  }
+  rect = rect.union_boundary(r.rect);
+  hasRect = !rect.is_empty();
+  if (!hasRect)
+    rect = Rect(0, 0, 0, 0);
+}
+
+void Region::assign_subtract(const Region& r)
+{
+  if (!hasRect || !r.hasRect)
+    return;
+  if (rect.enclosed_by(r.rect))
+    clear();
+}
+
+Region Region::intersect(const Region& r) const
+{
+  Region ret(*this);
+  ret.assign_intersect(r);
+  return ret;
+}
+
+Region Region::union_(const Region& r) const
+{
+  Region ret(*this);
+  ret.assign_union(r);
+  return ret;
+}
+
+Region Region::subtract(const Region& r) const
+{
+  Region ret(*this);
+  ret.assign_subtract(r);
+  return ret;
+}
+
+bool Region::operator==(const Region& r) const
+{
+  if (!hasRect && !r.hasRect)
+    return true;
+  if (hasRect != r.hasRect)
+    return false;
+  return rect == r.rect;
+}
+
+bool Region::operator!=(const Region& r) const
+{
+  return !(*this == r);
+}
+
+int Region::numRects() const
+{
+  return hasRect ? 1 : 0;
+}
+
+bool Region::get_rects(std::vector<Rect>* rects,
+                       bool /*left2right*/, bool /*topdown*/) const
+{
+  rects->clear();
+  if (!hasRect)
+    return false;
+  rects->push_back(rect);
+  return true;
+}
+
+Rect Region::get_bounding_rect() const
+{
+  return hasRect ? rect : Rect(0, 0, 0, 0);
+}
+
+void Region::debug_print(const char* prefix) const
+{
+  Rect extents = get_bounding_rect();
+  std::vector<Rect> rects;
+
+  get_rects(&rects);
+
+  vlog.debug("%s num rects %3ld extents %3d,%3d %3dx%3d",
+             prefix, (long)rects.size(), extents.tl.x, extents.tl.y,
+             extents.width(), extents.height());
+}
+#else
 Region::Region()
 {
   rgn = new struct pixman_region16;
@@ -201,3 +353,4 @@ void Region::debug_print(const char* prefix) const
                iter->tl.x, iter->tl.y, iter->width(), iter->height());
   }
 }
+#endif

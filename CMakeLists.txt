@@ -21,6 +21,13 @@ include(CMakeMacroLibtoolFile)
 project(tigervnc)
 set(VERSION 1.16.0)
 
+set(TIGERVNC_SOURCE_DIR ${CMAKE_SOURCE_DIR})
+
+set(OHOS FALSE)
+if(DEFINED CMAKE_SYSTEM_NAME AND CMAKE_SYSTEM_NAME STREQUAL "OHOS")
+  set(OHOS TRUE)
+endif()
+
 # The RC version must always be four comma-separated numbers
 string(REPLACE . , RCVERSION "${VERSION}.0")
 
@@ -137,7 +144,7 @@ macro(trioption VAR DESC)
 endmacro()
 
 # X11 stuff. It's in a if() so that we can say REQUIRED
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT OHOS)
   find_package(X11 REQUIRED)
   if(X11_Xdamage_LIB)
     add_definitions(-DHAVE_XDAMAGE)
@@ -157,7 +164,9 @@ endif()
 find_package(ZLIB REQUIRED)
 
 # Check for pixman
-find_package(Pixman REQUIRED)
+if(NOT OHOS)
+  find_package(Pixman REQUIRED)
+endif()
 
 # Check for gettext
 trioption(ENABLE_NLS "Enable translation of program messages")
@@ -220,45 +229,48 @@ if(ENABLE_H264)
 endif()
 
 # Check for libjpeg
-find_package(JPEG REQUIRED)
+if(NOT OHOS)
+  find_package(JPEG REQUIRED)
 
-# Warn if it doesn't seem to be the accelerated libjpeg that's found
-set(CMAKE_REQUIRED_LIBRARIES ${JPEG_LIBRARIES})
-set(CMAKE_REQUIRED_FLAGS -I${JPEG_INCLUDE_DIR})
+  set(CMAKE_REQUIRED_LIBRARIES ${JPEG_LIBRARIES})
+  set(CMAKE_REQUIRED_FLAGS -I${JPEG_INCLUDE_DIR})
 
-set(JPEG_TEST_SOURCE "\n
-  #include <stdio.h>\n
-  #include <jpeglib.h>\n
-  int main(void) {\n
-    struct jpeg_compress_struct cinfo;\n
-    struct jpeg_error_mgr jerr;\n
-    cinfo.err=jpeg_std_error(&jerr);\n
-    jpeg_create_compress(&cinfo);\n
-    cinfo.input_components = 3;\n
-    jpeg_set_defaults(&cinfo);\n
-    cinfo.in_color_space = JCS_EXT_RGB;\n
-    jpeg_default_colorspace(&cinfo);\n
-    return 0;\n
-  }")
+  set(JPEG_TEST_SOURCE "\n
+    #include <stdio.h>\n
+    #include <jpeglib.h>\n
+    int main(void) {\n
+      struct jpeg_compress_struct cinfo;\n
+      struct jpeg_error_mgr jerr;\n
+      cinfo.err=jpeg_std_error(&jerr);\n
+      jpeg_create_compress(&cinfo);\n
+      cinfo.input_components = 3;\n
+      jpeg_set_defaults(&cinfo);\n
+      cinfo.in_color_space = JCS_EXT_RGB;\n
+      jpeg_default_colorspace(&cinfo);\n
+      return 0;\n
+    }")
 
-if(CMAKE_CROSSCOMPILING)
-  check_c_source_compiles("${JPEG_TEST_SOURCE}" FOUND_LIBJPEG_TURBO)
-else()
-  check_c_source_runs("${JPEG_TEST_SOURCE}" FOUND_LIBJPEG_TURBO)
-endif()
+  if(CMAKE_CROSSCOMPILING)
+    check_c_source_compiles("${JPEG_TEST_SOURCE}" FOUND_LIBJPEG_TURBO)
+  else()
+    check_c_source_runs("${JPEG_TEST_SOURCE}" FOUND_LIBJPEG_TURBO)
+  endif()
 
-set(CMAKE_REQUIRED_LIBRARIES)
-set(CMAKE_REQUIRED_FLAGS)
-set(CMAKE_REQUIRED_DEFINITIONS)
+  set(CMAKE_REQUIRED_LIBRARIES)
+  set(CMAKE_REQUIRED_FLAGS)
+  set(CMAKE_REQUIRED_DEFINITIONS)
 
-if(NOT FOUND_LIBJPEG_TURBO)
-  message(STATUS "Warning: You are not using libjpeg-turbo. Performance will suffer.")
+  if(NOT FOUND_LIBJPEG_TURBO)
+    message(STATUS "Warning: You are not using libjpeg-turbo. Performance will suffer.")
+  endif()
 endif()
 
 option(BUILD_JAVA "Build Java version of the TigerVNC Viewer" FALSE)
 if(BUILD_JAVA)
   add_subdirectory(java)
 endif()
+
+option(BUILD_OHOS_CLIENT "Build OpenHarmony client library" OFF)
 
 trioption(BUILD_VIEWER "Build TigerVNC viewer")
 if(BUILD_VIEWER)
@@ -277,7 +289,7 @@ if(BUILD_VIEWER)
     set(BUILD_VIEWER 0)
   endif()
 
-  if(UNIX AND NOT APPLE)
+  if(UNIX AND NOT APPLE AND NOT OHOS)
     # No proper handling for extra X11 libs that FLTK might need...
     if(X11_Xft_FOUND)
       # Xft headers include references to fontconfig, so we need
@@ -341,12 +353,12 @@ if (ENABLE_NETTLE)
 endif()
 
 # Check for PAM library
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT OHOS)
   find_package(PAM REQUIRED)
 endif()
 
 # Check for SELinux library
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT OHOS)
   trioption(ENABLE_SELINUX "Enable SELinux support")
   if(ENABLE_SELINUX)
     if(ENABLE_SELINUX STREQUAL "AUTO")
@@ -361,7 +373,7 @@ if(UNIX AND NOT APPLE)
 endif()
 
 # check for systemd support (socket activation)
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT OHOS)
   trioption(ENABLE_SYSTEMD "Enable systemd support")
   if(ENABLE_SYSTEMD)
     if(ENABLE_SYSTEMD STREQUAL "AUTO")
@@ -376,7 +388,7 @@ if(UNIX AND NOT APPLE)
 endif()
 
 # check for password pwquality check support
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT OHOS)
   trioption(ENABLE_PWQUALITY "Enable password pwquality check")
   if(ENABLE_PWQUALITY)
     if(ENABLE_PWQUALITY STREQUAL "AUTO")
@@ -391,7 +403,7 @@ if(UNIX AND NOT APPLE)
 endif()
 
 # check for libraries needed for wayland support
-if(UNIX AND NOT APPLE)
+if(UNIX AND NOT APPLE AND NOT OHOS)
   trioption(ENABLE_WAYLAND "Enable wayland support")
   if(ENABLE_WAYLAND)
     if(ENABLE_WAYLAND STREQUAL "AUTO")
@@ -442,7 +454,7 @@ if(WIN32)
   add_subdirectory(win)
 else()
   # No interest in building x related parts on Apple
-  if(NOT APPLE)
+  if(NOT APPLE AND NOT OHOS)
     add_subdirectory(unix)
   endif()
 endif()
@@ -456,11 +468,17 @@ if(BUILD_VIEWER)
   add_subdirectory(media)
 endif()
 
-add_subdirectory(tests)
+if(NOT OHOS)
+  add_subdirectory(tests)
+endif()
 
 
 if(BUILD_VIEWER)
   add_subdirectory(release)
+endif()
+
+if(BUILD_OHOS_CLIENT)
+  add_subdirectory(ohos)
 endif()
 
 # uninstall

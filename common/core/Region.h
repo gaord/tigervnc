@@ -26,7 +26,9 @@
 
 #include <core/Rect.h>
 
+#ifndef OHOS
 struct pixman_region16;
+#endif
 
 namespace core {
 
@@ -76,8 +78,12 @@ namespace core {
     void debug_print(const char *prefix) const;
 
   protected:
-
+#ifdef OHOS
+    bool hasRect;
+    Rect rect;
+#else
     struct pixman_region16* rgn;
+#endif
   };
 
 };
