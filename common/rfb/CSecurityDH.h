@@ -32,7 +32,7 @@ namespace rfb {
     virtual ~CSecurityDH();
     bool processMsg() override;
     int getType() const override { return secTypeDH; }
-    bool isSecure() const override { return false; }
+    bool isSecure() const override { return true; }
 
   private:
     bool readKey();
