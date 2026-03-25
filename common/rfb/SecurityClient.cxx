@@ -41,6 +41,8 @@
 #include <rfb/CSecurityRSAAES.h>
 #include <rfb/CSecurityDH.h>
 #include <rfb/CSecurityMSLogonII.h>
+#elif defined(OHOS)
+#include <rfb/CSecurityDH.h>
 #endif
 
 using namespace rfb;
@@ -53,6 +55,8 @@ core::EnumListParameter SecurityClient::secTypes
 #endif
 #ifdef HAVE_NETTLE
  ", RA2, RA2ne, RA2_256, RA2ne_256, DH, MSLogonII"
+#elif defined(OHOS)
+ ", DH"
 #endif
  ")",
  { "None", "VncAuth", "Plain",
@@ -61,6 +65,8 @@ core::EnumListParameter SecurityClient::secTypes
 #endif
 #ifdef HAVE_NETTLE
  "RA2", "RA2ne", "RA2_256", "RA2ne_256", "DH", "MSLogonII",
+#elif defined(OHOS)
+ "DH",
 #endif
  },
  { "None", "VncAuth", "Plain",
@@ -69,6 +75,8 @@ core::EnumListParameter SecurityClient::secTypes
 #endif
 #ifdef HAVE_NETTLE
  "RA2", "RA2ne", "RA2_256", "RA2ne_256", "DH", "MSLogonII",
+#elif defined(OHOS)
+ "DH",
 #endif
  });
 
@@ -119,6 +127,9 @@ CSecurity* SecurityClient::GetCSecurity(CConnection* cc, uint32_t secType)
     return new CSecurityDH(cc);
   case secTypeMSLogonII:
     return new CSecurityMSLogonII(cc);
+#elif defined(OHOS)
+  case secTypeDH:
+    return new CSecurityDH(cc);
 #endif
   }
 

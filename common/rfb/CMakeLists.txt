@@ -102,6 +102,8 @@ if (NETTLE_FOUND)
                  CSecurityRSAAES.cxx SSecurityRSAAES.cxx)
   target_include_directories(rfb SYSTEM PUBLIC ${NETTLE_INCLUDE_DIRS})
   target_link_libraries(rfb ${HOGWEED_LIBRARIES} ${NETTLE_LIBRARIES})
+elseif(OHOS)
+  target_sources(rfb PRIVATE CSecurityDH.cxx crypto/mini-gmp.c crypto/crypto_mock.c)
 endif()
 
 if(UNIX)

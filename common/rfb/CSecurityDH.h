@@ -20,11 +20,8 @@
 #ifndef __C_SECURITY_DH_H__
 #define __C_SECURITY_DH_H__
 
-#ifndef HAVE_NETTLE
-#error "This header should not be compiled without HAVE_NETTLE defined"
-#endif
+#include "crypto/mini-gmp.h"
 
-#include <nettle/bignum.h>
 #include <rfb/CSecurity.h>
 #include <rfb/Security.h>
 

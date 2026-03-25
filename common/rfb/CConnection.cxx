@@ -187,6 +187,11 @@ bool CConnection::processVersionMsg()
 
   server.setVersion(majorVersion, minorVersion);
 
+  if (majorVersion == 3 && minorVersion == 889) {
+    vlog.info("Detected Apple ARD 3.889 server. Forcing non-shared mode to avoid zombie session hangs.");
+    setShared(false);
+  }
+
   vlog.info("Server supports RFB protocol version %d.%d",
             server.majorVersion, server.minorVersion);
 
