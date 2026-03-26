@@ -45,7 +45,7 @@ namespace rfb {
     virtual ~CSecurityTLS();
     bool processMsg() override;
     int getType() const override { return anon ? secTypeTLSNone : secTypeX509None; }
-    bool isSecure() const override { return !anon; }
+    bool isSecure() const override { return true; }
 
     static core::StringParameter X509CA;
     static core::StringParameter X509CRL;

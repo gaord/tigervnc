@@ -21,18 +21,20 @@
 #include <config.h>
 #endif
 
-// Removed HAVE_NETTLE check for crypto mock
+#ifndef HAVE_NETTLE
+#error "This header should not be compiled without HAVE_NETTLE defined"
+#endif
+
 #include <stdlib.h>
 #ifndef WIN32
 #include <unistd.h>
 #endif
 #include <assert.h>
 
-#include "crypto/crypto_mock.h"
-#include "crypto/mini-gmp.h"
-
+#include <nettle/aes.h>
+#include <nettle/md5.h>
+#include <nettle/bignum.h>
 #include <rfb/CSecurityDH.h>
-
 #include <rfb/CConnection.h>
 #include <rdr/InStream.h>
 #include <rdr/OutStream.h>
@@ -40,19 +42,6 @@
 #include <rfb/Exception.h>
 
 using namespace rfb;
-
-static void nettle_mpz_set_str_256_u(mpz_t x, size_t length, const uint8_t *s) {
-    mpz_import(x, length, 1, 1, 1, 0, s);
-}
-
-static void nettle_mpz_get_str_256(size_t length, uint8_t *s, const mpz_t x) {
-    size_t count = 0;
-    mpz_export(s, &count, 1, 1, 1, 0, x);
-    if (count < length) {
-        memmove(s + length - count, s, count);
-        memset(s, 0, length - count);
-    }
-}
 
 const int MinKeyLength = 128;
 const int MaxKeyLength = 1024;
