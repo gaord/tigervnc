@@ -1022,8 +1022,7 @@ void CConnection::updateEncodings()
   encodings.push_back(pseudoEncodingDesktopName);
   encodings.push_back(pseudoEncodingLastRect);
   encodings.push_back(pseudoEncodingExtendedClipboard);
-  // macOS screen sharing may have bugs with continuous updates on reconnect
-  // encodings.push_back(pseudoEncodingContinuousUpdates);
+  encodings.push_back(pseudoEncodingContinuousUpdates);
   encodings.push_back(pseudoEncodingFence);
   encodings.push_back(pseudoEncodingQEMUKeyEvent);
   encodings.push_back(pseudoEncodingExtendedMouseButtons);
