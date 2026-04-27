@@ -185,6 +185,8 @@ namespace rfb {
 
     stateEnum state() { return state_; }
 
+    bool hasReceivedFirstUpdate() const { return !firstUpdate; }
+
     // Methods used by SSecurity classes
 
     // getUserPasswd() gets the username and password.  This might
